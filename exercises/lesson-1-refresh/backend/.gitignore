@@ -1,3 +1,5 @@
 # Logs
+logs
+*.logs
 node_modules
 data

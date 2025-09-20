@@ -9,7 +9,7 @@ var expensesRouter = require('./routes/expenses.js');
 var app = express();
 
 app.use(cors({
-    origin: 'http://localhost:5473'
+    origin: 'http://localhost:5173'
 }));
 
 app.use(logger('dev'));

@@ -1,40 +1,60 @@
 import { type Expense } from "../types/Expense";
 import ExpenseItem from "../components/ExpenseItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ExpenseAdd from "../components/ExpenseAdd";
 
 const Home = () => {
-  const [expenseItems, setExpenseItems] = useState<Expense[]>([
-    {
-      id: "1",
-      date: "2025",
-      description: "Nintendo Switch",
-      payer: "Ayoub",
-      amount: 100,
-    },
-    {
-      id: "2",
-      date: "2023",
-      description: "XBOX",
-      payer: "Abdel",
-      amount: 300,
-    },
-    {
-      id: "3",
-      date: "2021",
-      description: "PS5",
-      payer: "Ali-Reda",
-      amount: 50,
-    },
-  ]);
+  const [expenseItems, setExpenseItems] = useState<Expense[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const handleAdd = (newExpense: Expense) => {
-    const newItems = [...expenseItems, newExpense];
-    setExpenseItems(newItems);
+  const sendApiRequestAndHandleError = async (method: string = 'GET', path: string, body?: unknown) => {
+    try {
+      const response = await fetch(`http://localhost:3000/${path}`, {
+        method: method,
+        headers: body ? { 'Content-Type': 'application/json' } : {},
+        body: body ? JSON.stringify(body) : null,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error status: ${response.status}`)
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error("API request failed:", err);
+      setError(err instanceof Error ? err.message : 'An error occured');
+    }
   };
+
+  const fetchExpenses = async () => {
+    try {
+      const data = await sendApiRequestAndHandleError('GET', 'expenses');
+      setError(null);
+      setExpenseItems(data);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAdd = async (newExpense: Expense) => {
+    await sendApiRequestAndHandleError('POST', 'expenses', newExpense);
+    await fetchExpenses();
+  };
+
+  const resetData = async () => {
+    await sendApiRequestAndHandleError('POST', 'expenses/reset');
+    await fetchExpenses();
+  }
+
+  useEffect(() => {
+    fetchExpenses();
+  }, [])
 
   return (
     <>
+    {loading && <div>Loading...</div>}
+    {error && <div>Error : {error}</div>}
       {expenseItems.map((item) => {
         return (
           <>
@@ -43,8 +63,8 @@ const Home = () => {
           </>
         );
       })}
-      <br></br>
-      <ExpenseAdd handleAdd={handleAdd}></ExpenseAdd>
+      <br/><ExpenseAdd handleAdd={handleAdd}></ExpenseAdd>
+      <br/><button onClick={resetData}>Reset</button>
     </>
   );
 };

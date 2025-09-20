@@ -8,10 +8,10 @@ const ExpenseAdd = ({ handleAdd }: ExpenseAddProps) => {
   const onAdd = () => {
     const expense: Expense = {
       id: Date.now().toString(),
-      payer: Math.random() % 2 ? "Alice" : "Bob",
+      payer: Math.random() < 0.5 ? "Alice" : "Bob",
       amount: Number((Math.random() * 100).toFixed(2)),
       description: "No show",
-      date: Date.now().toString(),
+      date: new Date().toISOString()
     };
     handleAdd(expense);
   };
