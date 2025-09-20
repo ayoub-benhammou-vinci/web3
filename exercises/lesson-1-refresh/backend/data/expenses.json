@@ -1,0 +1,37 @@
+[
+  {
+    "id": "4",
+    "date": "2025-01-16",
+    "description": "Example expense #4 from Alice",
+    "payer": "Alice",
+    "amount": 30
+  },
+  {
+    "id": "5",
+    "date": "2025-01-15",
+    "description": "Example expense #5 from Bob",
+    "payer": "Bob",
+    "amount": 23
+  },
+  {
+    "id": "6",
+    "date": "2025-01-15",
+    "description": "Example expense #6 from Alice",
+    "payer": "Alice",
+    "amount": 10
+  },
+  {
+    "id": "10",
+    "date": "2028-01-16",
+    "description": "Example expense #10 from Alice",
+    "payer": "Alice",
+    "amount": 2000
+  },
+  {
+    "id": "10",
+    "date": "2028-01-16",
+    "description": "Example expense #10 from Alice",
+    "payer": "Alice",
+    "amount": 2000
+  }
+]
