@@ -13,5 +13,8 @@ content-type: application/json
     "date": "2028-01-16",
     "description": "Example expense #10 from Alice",
     "payer": "Alice",
-    "amount": 2000
+    "amount": 100
 }
+
+### Remove all and add default expenses
+POST {{baseUrl}}/expenses/reset

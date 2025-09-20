@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require('path');
 
 const EXPENSES_FILE_PATH = path.join(__dirname, '../data/expenses.json');
+const EXPENSES_DEFAULT = path.join(__dirname, '../data/expenses.init.json');
 
 const getAllExpenses = () => {
     const data = fs.readFileSync(EXPENSES_FILE_PATH, 'utf8');
@@ -17,4 +18,10 @@ const addExpense = (expense) => {
     return JSON.parse(updatedExpenses);
 }
 
-module.exports = { getAllExpenses, addExpense };
+const resetExpenses = () => {
+    const data = fs.readFileSync(EXPENSES_DEFAULT, 'utf-8');
+    fs.writeFileSync(EXPENSES_FILE_PATH, data);
+    return JSON.parse(data);
+}
+
+module.exports = { getAllExpenses, addExpense, resetExpenses };
