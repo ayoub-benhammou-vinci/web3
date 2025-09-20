@@ -14,7 +14,7 @@ const addExpense = (expense) => {
 
     const updatedExpenses = JSON.stringify(expenses, null, 2);
     fs.writeFileSync(EXPENSES_FILE_PATH, updatedExpenses);
-    return updatedExpenses;
+    return JSON.parse(updatedExpenses);
 }
 
 module.exports = { getAllExpenses, addExpense };
