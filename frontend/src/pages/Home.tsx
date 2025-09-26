@@ -54,6 +54,7 @@ const Home = () => {
 
   return (
     <>
+    <h2>Mes dépenses</h2>
     {loading && <div>Loading...</div>}
     {error && <div>Error : {error}</div>}
       {expenseItems.map((item) => {
