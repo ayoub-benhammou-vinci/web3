@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 const queryDatabaseAndDisconnect = (operation) => {
     return operation()
-        .finally(() => prisma.$disconnect)
+        .finally(() => prisma.$disconnect())
         .catch((e) => console.error(e));
 }
 
