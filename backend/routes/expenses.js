@@ -18,11 +18,10 @@ router.get("/", async (_req, res) => {
 
 router.post("/", async (req, res) => {
   if (
-    req.body.date == undefined ||
     req.body.description == undefined ||
     req.body.payer == undefined ||
     req.body.amount == undefined ||
-    req.body.amount <= 0
+    req.body.amount < 0
   ) {
     return res.status(400).json({ error: "Invalid expense data" });
   }
