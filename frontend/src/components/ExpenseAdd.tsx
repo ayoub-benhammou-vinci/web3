@@ -1,86 +1,69 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import type { ExpenseInput } from "../types/Expense";
 
 type ExpenseAddProps = {
-  handleAdd: (expense: ExpenseAdd) => void;
+  handleAdd: (expense: ExpenseInput) => void;
 };
-
-interface ExpenseAdd {
-  payer: string;
-  amount: number;
-  description: string;
-  date: string;
-}
-
 const ExpenseAdd = ({ handleAdd }: ExpenseAddProps) => {
-  const [payer, setPayer] = useState<string>("Bob");
-  const [amount, setAmount] = useState<number>(0);
-  const [description, setDescription] = useState<string>("");
-  const [date, setDate] = useState<string>("");
-  const [errors, setErrors] = useState<string[]>([]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ExpenseInput>();
 
-  useEffect(() => {
-    setPayer("Bob");
-    setAmount(0);
-    setDescription("");
-    setDate("");
-    setErrors([]);
-  }, []);
+  useEffect(() => {}, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!description) setErrors([...errors, "Description cannot be empty"]);
-    if (!amount || amount < 0)
-      setErrors([...errors, "Amount cannot be negative or empty"]);
-    if (!payer) setErrors([...errors, "Payer cannot be empty"]);
-    if (!date) setErrors([...errors, "Date cannot be empty"]);
-
-    if (errors.length != 0) {
-      setErrors([]);
-      return;
-    }
-
-    const expense: ExpenseAdd = {
+  const onSubmit = ({ payer, amount, description, date }: ExpenseInput) => {
+    const expense: ExpenseInput = {
       payer,
       amount,
       description,
       date: new Date(date).toISOString(),
     };
-
     handleAdd(expense);
-    setPayer("Bob");
-    setAmount(0);
-    setDescription("");
   };
 
   return (
     <>
-      <h2>Add expense form</h2>
-      {errors.length > 0 && errors.map((err) => <p>{err}</p>)}
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         style={{ display: "flex", flexDirection: "column", gap: "16px" }}
       >
-        <input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Description"
-        />
-        <select value={payer} onChange={(e) => setPayer(e.target.value)}>
+        <label>
+          Description
+          <input
+            {...register("description", { required: true })}
+            placeholder="Description"
+          />
+          {errors.description && <span>Description field is required</span>}
+        </label>
+
+        <select {...register("payer", {required: true})}>
           <option value="Bob">Bob</option>
           <option value="Alice">Alice</option>
         </select>
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(parseInt(e.target.value))}
-          placeholder="Amount"
-        />
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          placeholder="Date (JJ-MM-YYYY)"
-        />
+        {errors.payer && <span>Payer is required</span>}
+
+        <label>
+          Amount
+          <input
+            type="number"
+            {...register("amount", { required: true })}
+            placeholder="Amount"
+          />
+          {errors.amount && <span> Amount field is required</span>}
+        </label>
+
+        <label>
+          Date
+          <input
+            type="date"
+            {...register("date", { required: true })}
+            placeholder="Date"
+          />
+          {errors.date && <span>Date field is required</span>}
+        </label>
         <button type="submit">Add</button>
       </form>
     </>

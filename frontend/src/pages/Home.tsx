@@ -1,4 +1,4 @@
-import { type Expense } from "../types/Expense";
+import { type Expense, type ExpenseInput } from "../types/Expense";
 import ExpenseItem from "../components/ExpenseItem";
 import { useEffect, useState } from "react";
 import ExpenseAdd from "../components/ExpenseAdd";
@@ -42,7 +42,7 @@ const Home = () => {
     }
   };
 
-  const handleAdd = async (newExpense: ExpenseAdd) => {
+  const handleAdd = async (newExpense: ExpenseInput) => {
     await sendApiRequestAndHandleError("POST", "expenses", newExpense);
     await fetchExpenses();
   };
