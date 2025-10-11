@@ -1,6 +1,9 @@
-import type { PagesProps } from "../types/Expense"
+import { useContext } from "react"
+import { PageContext } from "../App"
 
-export const List = ({setCurrentPage} : PagesProps) => {
+export const List = () => {
+    const { setCurrentPage } = useContext(PageContext);
+    
     return (
         <>
             <p>List</p>
