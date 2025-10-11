@@ -7,4 +7,8 @@ export interface ExpenseInput {
   date: string;
 }
 
+export interface PagesProps {
+  setCurrentPage: (page: string) => void;
+}
+
 export interface Expense extends ExpenseInput, Identifiable {}
