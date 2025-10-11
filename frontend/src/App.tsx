@@ -3,33 +3,81 @@ import "./App.css";
 import { Welcome } from "./pages/Welcome";
 import { Add } from "./pages/Add";
 import { List } from "./pages/List";
-
-function App() {
-  const pages: { [key: string]: React.FunctionComponent } = {
-    Welcome: Welcome,
-    List: List,
-    Add: Add,
-  };
-  const [currentPage, setCurrentPage] = useState<string>("Welcome");
-  const CurrentPageComponent = pages[currentPage];
-
-  function handlePageChange(page: string) {
-    window.history.pushState(null, page, `/${page.toLowerCase()}`);
-    setCurrentPage(page);
-  }
-  return (
-    <PageContext.Provider value={{ currentPage, setCurrentPage: handlePageChange }}>
-      <CurrentPageComponent />
-    </PageContext.Provider>
-  );
-}
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Layout } from "./pages/Layout";
 
 const PageContext = createContext<{
-  currentPage: string;
-  setCurrentPage: (page: string) => void;
+  sendApiRequestAndHandleError: (
+    method: string,
+    path: string,
+    body?: unknown
+  ) => Promise<unknown>;
+  error: string | null;
 }>({
-  currentPage: "Welcome",
-  setCurrentPage: () => {},
+  sendApiRequestAndHandleError: async () => {
+    throw new Error("sendApiRequestAndHandleError error");
+  },
+  error: null,
 });
 
 export { App, PageContext };
+
+function App() {
+  const [error, setError] = useState<string | null>(null);
+
+  const host = import.meta.env.VITE_API_URL || "http://unknown-api-url.com";
+
+  const sendApiRequestAndHandleError = async (
+    method: string = "GET",
+    path: string,
+    body?: unknown
+  ) => {
+    try {
+      const response = await fetch(`${host}/${path}`, {
+        method: method,
+        headers: body ? { "Content-Type": "application/json" } : {},
+        body: body ? JSON.stringify(body) : null,
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error("API request failed:", err);
+      setError(err instanceof Error ? err.message : "An error occured");
+    }
+  };
+
+  const context = {
+    sendApiRequestAndHandleError,
+    error,
+  };
+
+  const router = createBrowserRouter([
+    {
+      element: <Layout />,
+      children: [
+        {
+          index: true,
+          element: <Welcome />,
+        },
+        {
+          path: "list",
+          element: <List />,
+        },
+        {
+          path: "add",
+          element: <Add />,
+        },
+      ],
+    },
+  ]);
+
+  return (
+    <PageContext.Provider value={context}>
+      <RouterProvider router={router} />
+    </PageContext.Provider>
+  );
+}

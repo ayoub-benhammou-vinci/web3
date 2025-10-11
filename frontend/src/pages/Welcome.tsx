@@ -1,13 +1,13 @@
-import { useContext } from "react";
-import { PageContext } from "../App";
+import { useNavigate } from "react-router-dom";
 
 export const Welcome = () => {
-  const { setCurrentPage } = useContext(PageContext);
+  const navigate = useNavigate();
+
   return (
     <>
       <p>Welcome !</p>
-      <button onClick={() => setCurrentPage("Add")}>Add new expenses </button>
-      <button onClick={() => setCurrentPage("List")}>View all expenses</button>
+      <button onClick={() => navigate("/add")}>Add new expenses </button>
+      <button onClick={() => navigate("/list")}>View all expenses</button>
     </>
   );
 };
