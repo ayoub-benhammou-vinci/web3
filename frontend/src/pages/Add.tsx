@@ -1,141 +1,132 @@
-import { useContext } from "react";
-import { PageContext } from "../App";
-import { useForm } from "react-hook-form";
-import type { ExpenseInput } from "../types/Expense";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useContext } from 'react';
+import { PageContext } from '../App';
+import { useNavigate } from 'react-router';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
-export const Add = () => {
+const expenseSchema = z.object({
+  description: z
+    .string()
+    .max(200, 'Description cannot exceed 200 characters')
+    .min(3, 'Description must be at least 3 characters long')
+    .or(z.literal('')),
+  payer: z.enum(['Alice', 'Bob'], {
+    error: 'Payer must be either Alice or Bob',
+  }),
+  amount: z.coerce.number<number>().gt(0, 'Amount must be a positive number'),
+});
+
+type FormData = z.infer<typeof expenseSchema>;
+
+const Add = () => {
   const { sendApiRequestAndHandleError } = useContext(PageContext);
   const navigate = useNavigate();
-
-  const expenseSchema = z.object({
-    payer: z.enum(["Bob", "Alice"], { message: "Payer must be Alice or Bob" }),
-    amount: z.number().positive({ message: "Amount must be positive" }),
-    description: z
-      .string()
-      .max(200, { message: "Description max length is 200" }),
-    date: z.string().nonempty({ message: "Date is required" }),
-  });
-
-  type ExpenseFormData = z.infer<typeof expenseSchema>;
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<ExpenseFormData>({
+  const form = useForm<FormData>({
     resolver: zodResolver(expenseSchema),
+    defaultValues: { description: '', payer: 'Alice' },
   });
 
-  const onSubmit = async ({
-    payer,
-    amount,
-    description,
-    date,
-  }: ExpenseInput) => {
-    const expense: ExpenseInput = {
+  const onSubmit = async ({ description, payer, amount }: FormData) => {
+    const newExpenseForm = {
+      description,
       payer,
       amount,
-      description,
-      date: new Date(date).toISOString(),
+      date: new Date().toISOString(),
     };
-    await sendApiRequestAndHandleError("POST", "expenses", expense);
-    navigate("/list");
+    await sendApiRequestAndHandleError('POST', 'expenses', newExpenseForm);
+    toast('Expense has been created.');
+    navigate('/list');
   };
 
-  const resetData = async () => {
-    await sendApiRequestAndHandleError("POST", "expenses/reset");
-    navigate("/list");
+  const isSubmitDisabled = form.formState.isSubmitting || !form.formState.isValid;
+
+  const handleResetData = async () => {
+    await sendApiRequestAndHandleError('POST', 'expenses/reset');
+    toast('Expense has been reset.');
+    navigate('/list');
   };
 
   return (
-    <>
-      <h2 className="text-2xl text-blue-900 font-semibold text-center mt-6">
-        Add Expense Form
-      </h2>
+    <div>
+      <div>
+        <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-sm border">
+          <h3 className="text-lg font-semibold mb-4">Add New Expense</h3>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-6 p-3 bg-white shadow-md rounded-md m-10 max-w-md mx-auto items-center text-center"
-      >
-        <label className="flex flex-col w-full">
-          <span className="mb-1 text-gray-700 font-medium">Description :</span>
-          <input
-            {...register("description")}
-            placeholder="Description"
-            className="border border-gray-300 rounded-md p-2 text-center"
-          />
-          {errors.description && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.description.message}
-            </span>
-          )}
-        </label>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Description" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        <label className="flex flex-col w-full">
-          <span className="mb-1 text-gray-700 font-medium">Selection :</span>
-          <select
-            {...register("payer")}
-            className="border border-gray-300 rounded-md p-2 text-center"
-          >
-            <option value="Bob">Bob</option>
-            <option value="Alice">Alice</option>
-          </select>
-          {errors.payer && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.payer.message}
-            </span>
-          )}
-        </label>
+                <FormField
+                  control={form.control}
+                  name="payer"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Payer</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a payer" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Alice">Alice</SelectItem>
+                          <SelectItem value="Bob">Bob</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        <label className="flex flex-col w-full">
-          <span className="mb-1 text-gray-700 font-medium">Amount :</span>
-          <input
-            type="number"
-            {...register("amount", { valueAsNumber: true })}
-            placeholder="Amount"
-            className="border border-gray-300 rounded-md p-2 text-center"
-          />
-          {errors.amount && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.amount.message}
-            </span>
-          )}
-        </label>
+                <FormField
+                  control={form.control}
+                  name="amount"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Amount</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="0.00" step={0.01} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-        <label className="flex flex-col w-full">
-          <span className="mb-1 text-gray-700 font-medium">Date :</span>
-          <input
-            type="date"
-            {...register("date")}
-            placeholder="Date"
-            className="border border-gray-300 rounded-md p-2 text-center"
-          />
-          {errors.date && (
-            <span className="text-red-600 text-sm mt-1">
-              {errors.date.message}
-            </span>
-          )}
-        </label>
+              <div className="flex justify-end">
+                <Button type="submit" disabled={isSubmitDisabled} variant="default">
+                  {form.formState.isSubmitting ? 'Adding...' : 'Add'}
+                </Button>
 
-        <div className="flex gap-4 justify-center w-full mt-4">
-          <button
-            type="submit"
-            className="bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-800 transition-colors"
-          >
-            Add
-          </button>
-          <button
-            type="button"
-            onClick={resetData}
-            className="bg-slate-600 text-white px-6 py-2 rounded-md hover:bg-slate-700 transition-colors"
-          >
-            Reset
-          </button>
+                <Button type="button" onClick={handleResetData} variant="destructive">
+                  Reset Data
+                </Button>
+              </div>
+            </form>
+          </Form>
         </div>
-      </form>
-    </>
+      </div>
+    </div>
   );
 };
+
+export default Add;
