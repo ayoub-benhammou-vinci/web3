@@ -8,7 +8,6 @@ import { useNavigate } from "react-router-dom";
 
 export const Add = () => {
   const { sendApiRequestAndHandleError } = useContext(PageContext);
-
   const navigate = useNavigate();
 
   const expenseSchema = z.object({
@@ -53,58 +52,90 @@ export const Add = () => {
 
   return (
     <>
+      <h2 className="text-2xl text-blue-900 font-semibold text-center mt-6">
+        Add Expense Form
+      </h2>
+
       <form
         onSubmit={handleSubmit(onSubmit)}
-        style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+        className="flex flex-col gap-6 p-3 bg-white shadow-md rounded-md m-10 max-w-md mx-auto items-center text-center"
       >
-        <label>
-          Description :
+        <label className="flex flex-col w-full">
+          <span className="mb-1 text-gray-700 font-medium">Description :</span>
           <input
             {...register("description")}
             placeholder="Description"
-            style={{ width: "400px" }}
+            className="border border-gray-300 rounded-md p-2 text-center"
           />
           {errors.description && (
-            <span style={{ color: "red" }}>{errors.description.message}</span>
+            <span className="text-red-600 text-sm mt-1">
+              {errors.description.message}
+            </span>
           )}
         </label>
 
-        <label>
-          Selection :
-          <select {...register("payer")}>
+        <label className="flex flex-col w-full">
+          <span className="mb-1 text-gray-700 font-medium">Selection :</span>
+          <select
+            {...register("payer")}
+            className="border border-gray-300 rounded-md p-2 text-center"
+          >
             <option value="Bob">Bob</option>
             <option value="Alice">Alice</option>
           </select>
           {errors.payer && (
-            <span style={{ color: "red" }}>{errors.payer.message}</span>
+            <span className="text-red-600 text-sm mt-1">
+              {errors.payer.message}
+            </span>
           )}
         </label>
 
-        <label>
-          Amount :
+        <label className="flex flex-col w-full">
+          <span className="mb-1 text-gray-700 font-medium">Amount :</span>
           <input
             type="number"
             {...register("amount", { valueAsNumber: true })}
             placeholder="Amount"
+            className="border border-gray-300 rounded-md p-2 text-center"
           />
           {errors.amount && (
-            <span style={{ color: "red" }}>{errors.amount.message}</span>
+            <span className="text-red-600 text-sm mt-1">
+              {errors.amount.message}
+            </span>
           )}
         </label>
 
-        <label>
-          Date :
-          <input type="date" {...register("date")} placeholder="Date" />
+        <label className="flex flex-col w-full">
+          <span className="mb-1 text-gray-700 font-medium">Date :</span>
+          <input
+            type="date"
+            {...register("date")}
+            placeholder="Date"
+            className="border border-gray-300 rounded-md p-2 text-center"
+          />
           {errors.date && (
-            <span style={{ color: "red" }}>{errors.date.message}</span>
+            <span className="text-red-600 text-sm mt-1">
+              {errors.date.message}
+            </span>
           )}
         </label>
-        <button type="submit">Add</button>
-      </form>
 
-      <button onClick={resetData} style={{ marginTop: "12px" }}>
-        Reset
-      </button>
+        <div className="flex gap-4 justify-center w-full mt-4">
+          <button
+            type="submit"
+            className="bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-800 transition-colors"
+          >
+            Add
+          </button>
+          <button
+            type="button"
+            onClick={resetData}
+            className="bg-slate-600 text-white px-6 py-2 rounded-md hover:bg-slate-700 transition-colors"
+          >
+            Reset
+          </button>
+        </div>
+      </form>
     </>
   );
 };

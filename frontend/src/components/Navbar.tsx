@@ -1,11 +1,16 @@
-import { NavLink } from "react-router-dom"
+import { NavLink, useLocation } from "react-router-dom";
 
 export const Navbar = () => {
-    return (
-        <nav style={{ display: "flex", justifyContent: "space-arround", gap: "20px"}}>
-            <NavLink to="/">Home</NavLink>
-            <NavLink to="/list">Expenses</NavLink>
-            <NavLink to="/add">Add Expense</NavLink>
-        </nav>
-    )
-}
+  const location = useLocation();
+  return (
+    <div className="bg-green-800 p-5">
+      <nav className="flex text-white flex-row justify-center gap-20 shadow-black">
+        <NavLink to="/" className={location.pathname == "/" ? "font-bold" : ""}>
+          Home
+        </NavLink>
+        <NavLink to="/list" className={location.pathname == "/list" ? "font-bold" : ""}>Expenses</NavLink>
+        <NavLink to="/add" className={location.pathname == "/add" ? "font-bold" : ""}>Add Expense</NavLink>
+      </nav>
+    </div>
+  );
+};
