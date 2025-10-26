@@ -1,7 +1,0 @@
-# Logs
-logs
-*.logs
-node_modules
-.env
-
-/generated/prisma
